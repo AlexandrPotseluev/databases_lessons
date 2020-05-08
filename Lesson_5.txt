@@ -1,0 +1,117 @@
+-- Lesson 5
+
+USE lesson_5;
+SHOW TABLES;
+
+SELECT * FROM users;
+SELECT * FROM storehouses_products;
+SELECT * FROM discounts;
+SELECT * FROM orders;
+SELECT * FROM orders_products;
+SELECT * FROM products;
+SELECT * FROM storehouses;
+SELECT * FROM tbl;
+SELECT * FROM catalogs;
+SELECT * FROM factorial;
+
+DESC storehouses_products;
+
+-- Пусть в таблице users поля created_at и updated_at оказались незаполненными. 
+-- Заполните их текущими датой и временем
+
+UPDATE users SET created_at = NULL;
+UPDATE users SET updated_at = NULL;
+
+UPDATE users SET created_at = CURRENT_TIMESTAMP;
+UPDATE users SET updated_at = CURRENT_TIMESTAMP;
+
+-- Таблица users была неудачно спроектирована. Записи created_at и updated_at были заданы типом VARCHAR
+-- и в них долгое время помещались значения в формате "20.10.2017 8:10".
+-- Необходимо преобразовать поля к типу DATETIME, сохранив введеные ранее значения.
+
+ALTER TABLE users MODIFY COLUMN created_at VARCHAR(100);
+ALTER TABLE users MODIFY COLUMN updated_at VARCHAR(100);
+
+ALTER TABLE users MODIFY COLUMN created_at DATETIME;
+ALTER TABLE users MODIFY COLUMN updated_at DATETIME;
+
+-- В таблице складских запасов storehouses_products в поле value могут встречаться самые разные цифры: 
+-- 0, если товар закончился и выше нуля, если на складе имеются запасы. 
+-- Необходимо отсортировать записи таким образом, чтобы они выводились в порядке увеличения значения value.
+-- Однако, нулевые запасы должны выводиться в конце, после всех записей.
+
+INSERT INTO storehouses_products (value) VALUES
+  (0),
+  (2500),
+  (0),
+  (30),
+  (500),
+  (1);
+
+ INSERT INTO storehouses (name) VALUES
+  ('Intel Core i3-8100'),
+  ('Intel Core i5-7400'),
+  ('AMD FX-8320E'),
+  ('AMD FX-8320'),
+  ('ASUS ROG MAXIMUS X HERO'),
+  ('Gigabyte H310M S2H'),
+  ('MSI B250M GAMING PRO');
+  
+UPDATE storehouses_products SET storehouse_id =
+  FLOOR(1 + RAND() * 7);
+ 
+UPDATE storehouses_products SET product_id = storehouse_id;
+
+SELECT value FROM storehouses_products ORDER BY IF(value = 0, 1, 0), value;
+
+-- (по желанию) Из таблицы catalogs извлекаются записи при помощи запроса.
+-- SELECT * FROM catalogs WHERE id IN (5, 1, 2);
+-- Отсортируйте записи в порядке, заданном в списке IN.
+
+SELECT * FROM catalogs 
+WHERE id IN (5, 1, 2) ORDER BY FIELD(id, '5', '1', '2');
+
+-- по желанию) Из таблицы users необходимо извлечь пользователей, родившихся в августе и мае. 
+-- Месяцы заданы в виде списка английских названий ('may', 'august')
+
+SELECT name, birthday_at
+FROM users 
+WHERE DATE_FORMAT(birthday_at,'%M') in ('may', 'august');
+
+-- Подсчитайте средний возраст пользователей в таблице users
+
+SELECT ROUND(
+  AVG(TIMESTAMPDIFF(YEAR, birthday_at, NOW()))
+  )
+AS AVG_age
+FROM users;
+
+-- Подсчитайте количество дней рождения, которые приходятся на каждый из дней недели. 
+-- Следует учесть, что необходимы дни недели текущего года, а не года рождения.
+
+SELECT
+  DAYNAME(CONCAT(YEAR(CURDATE()), '-', DATE_FORMAT(birthday_at, '%m-%d'))) AS week_day,
+  COUNT(name) AS quantity_bdays
+FROM
+  users
+GROUP BY
+  week_day;
+ 
+-- (по желанию) Подсчитайте произведение чисел в столбце таблицы (1,2,3,4,5)
+
+DROP TABLE IF EXISTS factorial;
+
+CREATE TABLE factorial (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+  value INT UNSIGNED NOT NULL
+ );
+
+INSERT INTO factorial (value) VALUES
+  (1),
+  (2),
+  (3),
+  (4),
+  (5);
+ 
+SELECT EXP(sum(log(value))) AS multiply FROM factorial;
+
