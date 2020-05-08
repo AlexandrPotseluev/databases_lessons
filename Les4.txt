@@ -1,0 +1,60 @@
+USE vk;
+
+SELECT * FROM friendship_statuses;
+SELECT * FROM friendship;
+SELECT * FROM users;
+SELECT * FROM profiles;
+SELECT * FROM messages;
+SELECT * FROM media;
+SELECT * FROM media_types;
+SELECT * FROM communities;
+SELECT * FROM communities_users;
+
+
+UPDATE friendship SET rejected_at = CURRENT_TIMESTAMP WHERE status_id = 3;
+
+UPDATE friendship SET confirmed_at = NULL WHERE status_id = 3;
+
+ALTER TABLE friendship ADD COLUMN rejected_at DATETIME;
+
+UPDATE profiles SET photo_id = NULL;
+ 
+UPDATE friendship SET status_id = FLOOR(1 + RAND() * 3);
+ 
+DESC profiles;
+
+INSERT INTO friendship_statuses (name) VALUES 
+  ('requested'),
+  ('confirmed'),
+  ('rejected');
+  
+TRUNCATE friendship_statuses;
+
+UPDATE media SET filename =
+	CONCAT (
+	  'https://disk.yandex.ru/vk/',
+	  FLOOR(1000 + RAND() * 20000),
+	  '.',
+	  'mp3')
+	WHERE media_type_id = 3;
+	
+UPDATE media SET `size` =
+  FLOOR(1000000 + RAND() * 200000)
+  WHERE media_type_id = 2;
+
+UPDATE media SET metadata =
+ CONCAT (
+   '{"owner":"',
+   (SELECT CONCAT(first_name, ' ', last_name) FROM users WHERE id = user_id),
+   '"}'
+   );
+
+SELECT * FROM messages WHERE from_user_id = to_user_id;
+
+SELECT id FROM media WHERE media_type_id = 1;
+
+UPDATE profiles SET photo_id =
+  100 WHERE user_id = 100;
+  
+ UPDATE profiles SET photo_id =
+  (SELECT id FROM media WHERE id = media_type_id AND WHERE media_type_id = 1);
