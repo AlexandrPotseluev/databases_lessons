@@ -46,9 +46,9 @@ SELECT * FROM communities_users;
    COUNT(users.id) OVER() / COUNT(communities.id) OVER w AS average_users,
    MAX(CONCAT(profiles.birthday," (",users.first_name," ",users.last_name,") ")) OVER w AS youngest_user,
    MIN(CONCAT(profiles.birthday," (",users.first_name," ",users.last_name,") ")) OVER w AS oldest_user,
-   COUNT(users.id) OVER w AS users_group,
+   COUNT(communities_users.user_id) OVER w AS users_group,
    COUNT(users.id) OVER() AS users_total,
-   COUNT(users.id) OVER w / COUNT(users.id) OVER() * 100 AS '%%'
+   COUNT(communities_users.user_id) OVER w / COUNT(users.id) OVER() * 100 AS '%%'
  FROM communities
    JOIN communities_users
      ON communities.id = communities_users.community_id
